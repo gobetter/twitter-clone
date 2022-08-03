@@ -1,4 +1,9 @@
+import { useState } from 'react';
+
 import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/router';
+import { useRecoilState } from 'recoil';
+import Moment from 'react-moment';
 import {
   ChartBarIcon,
   ChatIcon,
@@ -13,11 +18,23 @@ import {
   // ChatIcon as ChatIconFilled,
 } from '@heroicons/react/solid';
 
+import { modalState, postIdState } from '../atoms/modalAtom';
+import { db } from '../firebase';
+
 const Post = ({ id, post, postPage }) => {
   const { data: session } = useSession();
+  const [isOpen, setIsOpen] = useRecoilState(modalState);
+  const [postId, setPostId] = useRecoilState(postIdState);
+  const [comments, setComments] = useState([]);
+  const [likes, setLikes] = useState([]);
+  const [liked, setLiked] = useState(false);
+  const router = useRouter();
 
   return (
-    <div className='p-3 flex cursor-pointer border-b border-gray-700'>
+    <div
+      className='p-3 flex cursor-pointer border-b border-gray-700'
+      onClick={() => router.push(`/${id}`)}
+    >
       {!postPage && (
         // eslint-disable-next-line @next/next/no-img-element
         <img
@@ -96,11 +113,11 @@ const Post = ({ id, post, postPage }) => {
             <div className='icon group-hover:bg-[#1d9bf0] group-hover:bg-opacity-10'>
               <ChatIcon className='h-5 group-hover:text-[#1d9bf0]' />
             </div>
-            {/* {comments.length > 0 && (
+            {comments.length > 0 && (
               <span className='group-hover:text-[#1d9bf0] text-sm'>
                 {comments.length}
               </span>
-            )} */}
+            )}
           </div>
 
           {session.user.uid === post?.id ? (
