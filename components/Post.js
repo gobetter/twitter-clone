@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
@@ -20,6 +20,13 @@ import {
 
 import { modalState, postIdState } from '../atoms/modalAtom';
 import { db } from '../firebase';
+import {
+  collection,
+  deleteDoc,
+  doc,
+  onSnapshot,
+  setDoc,
+} from 'firebase/firestore';
 
 const Post = ({ id, post, postPage }) => {
   const { data: session } = useSession();
@@ -29,6 +36,33 @@ const Post = ({ id, post, postPage }) => {
   const [likes, setLikes] = useState([]);
   const [liked, setLiked] = useState(false);
   const router = useRouter();
+
+  useEffect(
+    () =>
+      onSnapshot(collection(db, 'posts', id, 'likes'), (snapshot) =>
+        setLikes(snapshot.docs)
+      ),
+    [id]
+  );
+
+  useEffect(
+    () =>
+      setLiked(
+        likes.findIndex((like) => like.id === session?.user?.uid) !== -1
+      ),
+    // [likes]
+    [likes, session?.user?.uid]
+  );
+
+  const likePost = async () => {
+    if (liked) {
+      await deleteDoc(doc(db, 'posts', id, 'likes', session.user.uid));
+    } else {
+      await setDoc(doc(db, 'posts', id, 'likes', session.user.uid), {
+        username: session.user.name,
+      });
+    }
+  };
 
   return (
     <div
@@ -72,7 +106,7 @@ const Post = ({ id, post, postPage }) => {
             </div>{' '}
             ·{' '}
             <span className='hover:underline text-sm sm:text-[15px]'>
-              {/* <Moment fromNow>{post?.timestamp?.toDate()}</Moment> */}
+              <Moment fromNow>{post?.timestamp?.toDate()}</Moment>
             </span>
             {!postPage && (
               <p className='text-[#d9d9d9] text-[15px] sm:text-base mt-0.5'>
@@ -148,7 +182,6 @@ const Post = ({ id, post, postPage }) => {
               likePost();
             }}
           >
-            {/* 
             <div className='icon group-hover:bg-pink-600/10'>
               {liked ? (
                 <HeartIconFilled className='h-5 text-pink-600' />
@@ -164,7 +197,7 @@ const Post = ({ id, post, postPage }) => {
               >
                 {likes.length}
               </span>
-            )} */}
+            )}
           </div>
 
           <div className='icon group'>
