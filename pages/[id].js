@@ -19,6 +19,7 @@ import Sidebar from '../components/Sidebar';
 import Post from '../components/Post';
 import Login from '../components/Login';
 import Comment from '../components/Comment';
+import Widget from '../components/Widget';
 
 const PostPage = ({ trendingResults, followResults, providers }) => {
   const { data: session } = useSession();
@@ -89,6 +90,11 @@ const PostPage = ({ trendingResults, followResults, providers }) => {
             </div>
           )}
         </div>
+
+        <Widget
+          trendingResults={trendingResults}
+          followResults={followResults}
+        />
 
         {isOpen && <Modal />}
       </main>

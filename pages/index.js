@@ -1,11 +1,14 @@
 import Head from 'next/head';
+import { getProviders, getSession, useSession } from 'next-auth/react';
+import { useRecoilState } from 'recoil';
+
+import { modalState } from '../atoms/modalAtom';
+
 import Feed from '../components/Feed';
 import Sidebar from '../components/Sidebar';
-import { getProviders, getSession, useSession } from 'next-auth/react';
 import Login from '../components/Login';
 import Modal from '../components/Modal';
-import { modalState } from '../atoms/modalAtom';
-import { useRecoilState } from 'recoil';
+import Widget from '../components/Widget';
 
 export default function Home({ trendingResults, followResults, providers }) {
   const { data: session } = useSession();
@@ -23,6 +26,10 @@ export default function Home({ trendingResults, followResults, providers }) {
       <main className='bg-black min-h-screen flex max-w-[1500px] mx-auto'>
         <Sidebar />
         <Feed />
+        <Widget
+          trendingResults={trendingResults}
+          followResults={followResults}
+        />
 
         {isOpen && <Modal />}
       </main>
